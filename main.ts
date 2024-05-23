@@ -50,16 +50,21 @@ class Student {
     console.log(chalk.cyanBright("-".repeat(130)));
   }
 
-  // Method to pay student fees
+// Method to pay student fees
   pay_fees(amount: number, method: string) {
-    this.balance += amount;
+  if (this.balance >= amount) {
+    this.balance -= amount; 
     console.log(chalk.cyanBright("-".repeat(130)));
     console.log(chalk.greenBright(`${this.name} $${amount} fee has been paid successfully.`));
     console.log(chalk.greenBright(`Remaining Balance: $${this.balance}`));
     // Store the transaction details
     lastPaymentMethod = method;
     lastPaymentAmount = amount;
+  } else {
+    console.log(chalk.redBright(`Insufficient balance to pay $${amount}.`));
   }
+}
+
 
   // Method to display student status
   showStatus() {
@@ -89,6 +94,19 @@ class StudentManager {
     console.log(chalk.greenBright(`Student: '${name}' added successfully. Student ID: ${stdnt.id}.`));
     console.log(chalk.cyanBright("-".repeat(130)));
   }
+
+    // Method to remove a Student
+    remove_student(student_id: number) {
+      const index = this.students.findIndex((student) => student.id === student_id);
+      if (index !== -1) {
+        this.students.splice(index, 1);
+        console.log(chalk.cyanBright("-".repeat(130)));
+        console.log(chalk.greenBright(`Student with ID: ${student_id} removed successfully.`));
+        console.log(chalk.cyanBright("-".repeat(130)));
+      } else {
+        console.log(chalk.redBright("Student not found. Please enter a correct student ID"));
+      }
+    }
 
   // Method to enroll a student in a course
   async enroll_student(student_id: number, course: string, fee: number) {
@@ -177,6 +195,7 @@ async function main() {
         message: chalk.yellowBright("Choose an option"),
         choices: [
           "Add Student",
+          "Remove Student",
           "Enroll Student",
           "View Student Balance",
           "Pay Student Fees",
@@ -201,6 +220,17 @@ async function main() {
         ]);
         studentManager.add_student(name_input.name);
         break;
+
+        case "Remove Student":
+          let remove_input = await inquirer.prompt([
+            {
+              name: "student_id",
+              type: "number",
+              message: "Enter a Student ID to remove:",
+            },
+          ]);
+          studentManager.remove_student(remove_input.student_id);
+          break;
 
       case "Enroll Student":
         let course_choices = Object.keys(tuitionFees);
@@ -285,12 +315,3 @@ async function main() {
 
 // Calling the main function
 main();
-
-
-// // echo "# Student-Management-System" >> README.md
-// // git init
-// // git add README.md
-// // git commit -m "first commit"
-// // git branch -M main
-// // git remote add origin https://github.com/NeelamGhazal/Student-Management-System.git
-// // git push -u origin main
